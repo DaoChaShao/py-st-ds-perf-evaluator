@@ -5,8 +5,8 @@ from streamlit import (title, divider, expander, caption, empty,
 from utils import (sidebar_params_llm_getter,
                    file_loader,
                    name_getter,
-                   performance_analyzer_dynamic,
-                   llm_dynamic_getter,
+                   performance_analyzer_online,
+                   llm_online_getter,
                    Timer)
 
 

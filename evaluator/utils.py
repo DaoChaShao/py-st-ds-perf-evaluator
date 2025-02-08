@@ -79,7 +79,7 @@ def name_getter(content: str):
         return None
 
 
-def performance_analyzer_dynamic(name: str, params: dict, content: str):
+def performance_analyzer_online(name: str, params: dict, content: str):
     """ Analyze the performance of the student """
     context: str = (f"{params["sys_content"]}."
                     f"Your student {name} has completed the exam."
@@ -110,7 +110,7 @@ def performance_analyzer_dynamic(name: str, params: dict, content: str):
     return prompt
 
 
-def performance_analyzer_static(name: str, params: dict, content: str):
+def performance_analyzer_offline(name: str, params: dict, content: str):
     """ Analyze the performance of the student """
     context: str = (f"{params["sys_content"]}."
                     f"Your student {name} has completed the exam."
@@ -141,7 +141,7 @@ def performance_analyzer_static(name: str, params: dict, content: str):
     return prompt
 
 
-def llm_dynamic_getter(params: dict, prompt: str) -> str:
+def llm_online_getter(params: dict, prompt: str) -> str:
     """ Load Language Model """
     api_key: str = params["api_key"]
     client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
