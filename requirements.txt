@@ -1,7 +1,8 @@
-openai
-pymupdf
-pandas
-pdfplumber
-python-dotenv
-requests
-streamlit
+openai==1.61.1
+pymupdf==1.25.3
+pandas==2.2.3
+pdfplumber==0.11.5
+python-dotenv==1.0.1
+requests==2.32.3
+streamlit==1.42.0
+git-changelog==2.5.3
