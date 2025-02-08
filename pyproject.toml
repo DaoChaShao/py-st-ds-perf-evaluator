@@ -1,6 +1,6 @@
 # This configration is used to generate the changelog of between GitHub and Gitee platform
 
-[tool.git-changelog.github]
+[tool.git-changelog]
 bump = "auto"                                                               # Update the version number automatically
 convention = "conventional"                                                 # Use the conventional commit convention
 in-place = false                                                            # Overwrite the changelog file
