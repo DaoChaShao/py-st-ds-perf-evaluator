@@ -16,20 +16,3 @@ template = "angular"                                                        # Th
 version-regex = "^## \\[(?P<version>v?[^\\]]+)"                             # The version regex
 versioning = "semver"                                                       # semver and pep440
 zerover = false                                                             # Whether to use zero version
-
-[tool.git-changelog.gitee]
-bump = "auto"                                                               # Update the version number automatically
-convention = "conventional"                                                 # Use the conventional commit convention
-in-place = false                                                            # Overwrite the changelog file
-filter-commits = ""                                                         # Filter commits
-marker-line = "<!-- insertion marker for Gitee -->"                                   # Insertion marker
-output = "CHANGELOG-Gitee.md"                                              # Output the name of the file
-parse-refs = true                                                           # Whether to parse refs
-parse-trailers = true                                                       # Whether to parse trailers
-provider = "gitee"                                                         # Use the GitHub provider
-repository = "."                                                            # The current repository
-sections = ["feat", "fix", "chore", "docs", "perf", "build", "ci", "test"]  # The sections of the changelog
-template = "angular"                                                        # The template of the changelog
-version-regex = "^## \\[(?P<version>v?[^\\]]+)"                             # The version regex
-versioning = "semver"                                                       # semver and pep440
-zerover = false                                                             # Whether to use zero version
