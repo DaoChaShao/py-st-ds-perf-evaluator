@@ -12,6 +12,7 @@
 
 ### Chore
 
+- Add initial CHANGELOG.md for version 0.1.0 with features and updates ([55916d7](https://github.com/DaoChaShao/py-st-ds-perf-evaluator/commit/55916d7a318bd8e21004cd6bca981a788506af08))
 - Update changelog sections to include 'build' ([395bf28](https://github.com/DaoChaShao/py-st-ds-perf-evaluator/commit/395bf2895c7fe6035b56a3439ebeb985bd003273))
 - Remove unused dependencies from requirements.txt ([09b2767](https://github.com/DaoChaShao/py-st-ds-perf-evaluator/commit/09b276738e5343b865ec9d0f481023d8da50f8b2))
 - Update changelog configuration for output file and sections ([c5167d4](https://github.com/DaoChaShao/py-st-ds-perf-evaluator/commit/c5167d480d5bc760995824820dab3c4e43297f2c))
