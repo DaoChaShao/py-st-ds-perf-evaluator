@@ -1,12 +1,18 @@
-from pdfplumber import open as pdf_open
 from openai import OpenAI
+from pdfplumber import open as pdf_open
 from re import search
-from streamlit import (header, caption, sidebar, selectbox, segmented_control,
+from streamlit import (sidebar, header, selectbox, caption, segmented_control,
                        empty, write, text_input, file_uploader)
 from time import perf_counter
 
 
-def sidebar_params_llm_getter(message: empty) -> dict:
+def api_key_checker(key: str) -> bool:
+    """ Check the API Key """
+    if key.startswith("sk-") and len(key) == 35:
+        return True
+
+
+def hyperparams_getter(message: empty) -> dict:
     """ Set and get parameters of the model """
     parameters: dict = {}
 
@@ -14,30 +20,30 @@ def sidebar_params_llm_getter(message: empty) -> dict:
         header("Model Parameters")
         options_box: list = ["deepseek-chat"]
         model: str = selectbox(
-            "Select the LLM", ["select"] + options_box,
-            help="Select the Model you want to use")
+            "Select the LLM", options_box, disabled=True,
+            help="Select the Model you want to use"
+        )
+        caption(f"The model is {model}")
 
         api_key: str = text_input(
             "API Key", placeholder="Please enter the api key", type="password", max_chars=40,
-            help=f"Enter your API Key of {model}")
+            help=f"Enter your API Key of {model}"
+        )
+        if api_key_checker(api_key):
+            caption("API Key is valid")
 
-        options_temp = [0.0, 1.0, 1.3, 1.4, 1.5]
+        options_temp = [0.0, 1.3, 1.5]
         temperature: float = segmented_control(
             "Choose the Temperature of the LLM", options_temp, selection_mode="single",
+            default=1.5, disabled=True,
             help="Temperature is a hyperparameter that controls randomness of the model")
         match temperature:
             case 0.0:
                 caption("For: Coding / Math")
-                sys_content: str = "You are a professional coder"
-            case 1.0:
-                caption("For: Data Cleaning / Data Analysis")
-                sys_content: str = "You are a data scientist"
+                sys_content: str = "You are a professional coder and mathematician"
             case 1.3:
                 caption("For: General Conversation / Chatbot")
                 sys_content: str = "You are a helpful assistant"
-            case 1.4:
-                caption("For: General Translation")
-                sys_content: str = "You are a translator with a good understanding of languages"
             case 1.5:
                 caption("For: Creative Writing / Evaluation")
                 sys_content: str = "You are a senior one Chinese teacher"
@@ -59,7 +65,7 @@ def sidebar_params_llm_getter(message: empty) -> dict:
     return parameters
 
 
-def file_loader():
+def file_loader() -> str:
     """ This function loads the file from the user """
     uploaded_file = file_uploader("Upload a file", type="PDF", help="Upload a PDF file of a student")
     if uploaded_file:
@@ -70,7 +76,7 @@ def file_loader():
             return content
 
 
-def name_getter(content: str):
+def name_getter(content: str) -> str | None:
     """ Get the name of the student """
     match = search(r"(高中语文)\s*([\u4e00-\u9fa5]{2,4})", content)
     if match:
@@ -79,7 +85,7 @@ def name_getter(content: str):
         return None
 
 
-def performance_analyzer_online(name: str, params: dict, content: str):
+def performance_analyzer(name: str, params: dict, content: str) -> str:
     """ Analyze the performance of the student """
     context: str = (f"{params["sys_content"]}."
                     f"Your student {name} has completed the exam."
@@ -110,42 +116,10 @@ def performance_analyzer_online(name: str, params: dict, content: str):
     return prompt
 
 
-def performance_analyzer_offline(name: str, params: dict, content: str):
-    """ Analyze the performance of the student """
-    context: str = (f"{params["sys_content"]}."
-                    f"Your student {name} has completed the exam."
-                    f"The exam level is senior one Chinese."
-                    f"The performance of the exam is given in transcript {content}.")
-    instruction: str = f"Please giving a creative and constructive evaluation based on the transcript."
-    few_shots: str = (f"The evaluation should be started with '亲爱的{name}同学：'"
-                      f"The evaluation should be ended and located in a new line with '—— KK老师'.")
-    words_header: int = 100
-    words_body: int = 150
-    words_footer: int = 100
-    structure: str = (f"The evaluation should consist of five parts."
-                      f"1. Summary of the performance as a paragraph in chinese, limited within {words_header} words."
-                      f"2. '表现优异的地方', limited within {words_body} words."
-                      f"3. '需要改进的地方', limited within {words_body} words."
-                      f"4. '改进建议', limited within {words_body} words."
-                      f"5. '教师总结', limited within {words_footer} words.")
-    constraints: str = (f"Your evaluation should be clear, friendly, helpful and positive."
-                        f"Do not repeat the student's name in the evaluation."
-                        f"Do not use any format in the evaluation.")
-
-    prompt: str = (f"{context}"
-                   f"{instruction}"
-                   f"{few_shots}"
-                   f"{structure}"
-                   f"{constraints}")
-
-    return prompt
-
-
-def llm_online_getter(params: dict, prompt: str) -> str:
+def deepseek_api_model(params: dict, prompt: str) -> str:
     """ Load Language Model """
     api_key: str = params["api_key"]
     client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
-    write(client.api_key)
     messages = [
         {"role": "system", "content": params["sys_content"]},
         {"role": "user", "content": prompt},
@@ -163,17 +137,20 @@ def llm_online_getter(params: dict, prompt: str) -> str:
 class Timer(object):
     """ This class is used for recording the time """
 
-    def __init__(self, precision=2):
-        self.start_time = perf_counter()
-        self.end_time = None
-        # Set the precision based on input
-        self.precision = precision
+    def __init__(self, description: str, precision: int = 5):
+        self._description = description
+        self._precision = precision
+        self._start = None
+        self._end = None
+        self._elapsed = None
 
     def __enter__(self):
+        self._start = perf_counter()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.end_time = perf_counter()
+        self._end = perf_counter()
+        self._elapsed = self._end - self._start
 
-    def __str__(self):
-        return f"{self.end_time - self.start_time:.{self.precision}f} seconds"
+    def __repr__(self):
+        return f"{self._description} consumes {self._elapsed:.{self._precision}f} seconds"
